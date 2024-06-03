@@ -1,13 +1,13 @@
-# Energy-based Traversability Prediction with Uncertainty Estimation
+# WayFAST PRO
 
-A traversability prediction method with Class Activation Maps for sparse training.
+A foundation model for traversability prediction.
 
 ![outline](images/WayFASTER.png)
 
 ## Introduction
 The code and trained models of:
 
-**WayFASTER: a Self-Supervised Traversability Prediction for Increased, [Mateus V. Gasparino](https://scholar.google.com/citations?user=UbtCA90AAAAJ&hl=en), [Arun N. Sivakumar](https://scholar.google.com/citations?user=peIOOn8AAAAJ&hl=en) and [Girish Chowdhary](https://scholar.google.com/citations?user=pf2zAXkAAAAJ&hl=en), ICRA 2024** [[Paper]]()
+**WayFAST PRO: a Foundation Model for Traversability Prediction** [[Paper]]()
 
 <p align="justify">
     We presented WayFASTER, a novel method for self-supervised traversability estimation that uses sequential information to predict a map that improves the traversability map visibility. For such, we use a neural network model that takes a sequence of RGB and depth images as input, and uses the camera’s intrinsic and extrinsic parameters to project the information to a 3D space and predict a 2D traversability map.
