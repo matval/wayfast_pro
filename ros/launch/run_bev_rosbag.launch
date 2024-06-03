@@ -1,0 +1,17 @@
+<launch>
+	<param name ="/use_sim_time" value="true"/>
+
+	<node pkg="rosbag" type="play" name="player" output="screen" args="--clock /media/mateus/1336a09b-baca-4722-85f3-3f7f6884754d/mateus_rosbags/ekf/rosbags/ts_2023_04_11_20h02m40s.bag"/>
+	
+	<group ns="terrasentia">
+		<!-- Traversability specific-->
+		<node pkg="bev_navigation" type="bev_traversability_node.py" name="bev_traversability" output="screen">
+			<param name="image_topic" 	type="string"	value="zed2/zed_node/left/image_rect_color/compressed" />
+			<param name="camera_topic" 	type="string"	value="zed2/zed_node/left/camera_info" />
+			<param name="depth_topic" 	type="string"	value="zed2/zed_node/depth/depth_registered" />
+			<param name="odom_topic" 	type="string"	value="ekf" />
+			<param name="config_file" 	type="string"	value="temporal_model.yaml" />
+			<param name="model_path" 	type="string"	value="$(find bev_navigation)/../checkpoints/best_temporal2.ckpt" />
+		</node>
+	</group>
+</launch>

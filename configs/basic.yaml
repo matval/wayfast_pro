@@ -1,0 +1,61 @@
+TAG: 'basic'
+
+DATASET:
+    TRAIN_DATA: ['/media/mateus/asv-hdd/dataset/train']
+    VALID_DATA: ['/media/mateus/asv-hdd/dataset/valid']
+
+TRAINING:
+# Number of epochs used for training
+    EPOCHS: 50
+    # The learning rate for the Adam optimizer for both training and fine-tuning
+    LR: 0.0004
+    # Whether to decay the learning rate if the validation loss plateaus for some time
+    USE_LEARNING_RATE_DECAY: True
+    # The weight for the entropy regularizer
+    ENTROPY_WEIGHT: 0.00001
+    WEIGHT_DECAY: 0.01
+    # Set the precision for the model
+    PRECISION: 'bf16-mixed'
+    # Whether to run fine-tuning after training
+    RUN_FINETUNING: True
+    BATCH_SIZE: 16
+    WORKERS: 8
+    VIS_INTERVAL: 100
+    HORIZON: 400
+    NUM_ROLLOUTS: 10
+    DT: 0.2
+    # The local directory where the final model should be stored. Only uploaded or discarded if not provided
+    OUTPUT_PATH: ""
+
+POINT_PILLAR:
+    MAX_POINTS_PER_PILLAR: 32
+    MAX_PILLARS: 12000
+    NUM_FEATURES: 7
+    NUM_CHANNELS: 64
+    DOWNSAMPLE: 2
+
+ENCODER:
+    ENCODER: 'dinov2_vits14' #'dino_vits8' #'dino_vits16'
+    DOWNSAMPLE: 7
+    LATENT_DIM: 64
+    INPUT_SIZE: [224, 224]
+    PREDICT_DEPTH: True
+    FUSE_PCLOUD: True
+    GRID_BOUNDS: {
+        'xbound': [-10.0, 10.0, 0.2],
+        'ybound': [-10.0, 10.0, 0.2],
+        'zbound': [-1.0, 2.0, 3.0],
+        'dbound': [ 0.4, 10.0, 0.4]}
+
+FLOW:
+    # The dimension of the model's latent space
+    LATENT_DIM: 16
+    # The type of normalizing flow to use
+    FLOW_TYPE: "radial" # "maf"
+    # The number of sequential normalizing flow transforms to use
+    NUM_LAYERS: 16
+    # The certainty budget to allocate in the latent space
+    CERTAINTY_BUDGET: "normal"
+
+AUGMENTATIONS:
+    PCLOUD_DROPOUT: 0.0

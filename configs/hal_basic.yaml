@@ -1,0 +1,62 @@
+TAG: 'basic'
+
+DATASET:
+    TRAIN_DATA: ['/home/mateus/catkin_ws/src/traversability_research/dataset/train']
+    VALID_DATA: ['/home/mateus/catkin_ws/src/traversability_research/dataset/valid']
+
+TRAINING:
+# Number of epochs used for training
+    EPOCHS: 50
+    # The learning rate for the Adam optimizer for both training and fine-tuning
+    LR: 0.001
+    # Whether to decay the learning rate if the validation loss plateaus for some time
+    USE_LEARNING_RATE_DECAY: True
+    # The weight for the entropy regularizer
+    ENTROPY_WEIGHT: 0.00001
+    WEIGHT_DECAY: 0.01
+    # Set the precision for the model
+    PRECISION: '32'
+    # Whether to run fine-tuning after training
+    RUN_FINETUNING: True
+    BATCH_SIZE: 64
+    WORKERS: 16
+    VIS_INTERVAL: 100
+    HORIZON: 400
+    DT: 0.2
+    # The local directory where the final model should be stored. Only uploaded or discarded if not provided
+    OUTPUT_PATH: ""
+
+POINT_PILLAR:
+    MAX_POINTS_PER_PILLAR: 32
+    MAX_PILLARS: 12000
+    NUM_FEATURES: 7
+    NUM_CHANNELS: 64
+    DOWNSAMPLE: 2
+
+ENCODER:
+    ENCODER: 'dino_vits8' #'dino_vits16'
+    DOWNSAMPLE: 8
+    LATENT_DIM: 64
+    INPUT_SIZE: [224, 224]
+    PREDICT_DEPTH: True
+    TRAIN_DEPTH: True
+    FUSE_PCLOUD: True
+    ENC_3_LAYERS: True
+    GRID_BOUNDS: {
+        'xbound': [-10.0, 10.0, 0.2],
+        'ybound': [-10.0, 10.0, 0.2],
+        'zbound': [-1.0, 2.0, 3.0],
+        'dbound': [ 0.4, 10.0, 0.4]}
+
+FLOW:
+    # The dimension of the model's latent space
+    LATENT_DIM: 16
+    # The type of normalizing flow to use
+    FLOW_TYPE: "radial" # "maf"
+    # The number of sequential normalizing flow transforms to use
+    NUM_LAYERS: 16
+    # The certainty budget to allocate in the latent space
+    CERTAINTY_BUDGET: "normal"
+
+AUGMENTATIONS:
+    PCLOUD_DROPOUT: 0.0

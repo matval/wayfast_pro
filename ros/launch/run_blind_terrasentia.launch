@@ -1,0 +1,57 @@
+<launch>
+	<arg name="main_pkg_name" default="$(find terrasentia_ag_nav)"/>
+    <arg name="controller_ip" default="192.168.1.135"/>
+	<arg name="ekf_frame_id" value="base_link"/>
+	<arg name="odom_topic_name" value="ekf"/>
+	
+	<group ns="terrasentia">
+		<param name="ts_robot" value="standard"/>
+		<rosparam command="load" file="$(find terrasentia_ag_nav)/configs/terrasentia/comm.yaml" />		
+		<rosparam command="load" file="$(find terrasentia_ag_nav)/configs/terrasentia/core.yaml" />
+		
+		<include file="$(arg main_pkg_name)/launch/common/core.launch">
+			<arg name="main_pkg_name" value="$(arg main_pkg_name)"/>
+		</include>
+		
+		<!-- <node pkg="operational_status" type="op_status_node" name="op_status_node" respawn="true" output="screen">
+			<param name="frame_id"			type="string" 	value="$(arg ekf_frame_id)" />
+			<param name="nav_mode_topic" 	type="string" 	value="enable_auto_mode" />
+		</node> -->
+		
+		<include file="$(arg main_pkg_name)/launch/common/ekf.launch">
+			<arg name="main_pkg_name" value="$(arg main_pkg_name)"/>
+		</include>	
+
+		<!--Manages TS specific communication-->
+		<include file="$(arg main_pkg_name)/launch/common/comm.launch"/>
+
+		<!-- Traversability specific-->
+		<node pkg="ref_path_generator" type="point_navigation.py" name="point_navigation_node" required="true" output="log">
+			<param name="odom_topic" 		type="string"	value="/terrasentia/mhe_odom" />
+			<param name="auto_mode_topic" 	type="string"	value="/terrasentia/enable_auto_mode" />
+			<param name="max_error" 		value="1.5" />
+			<param name="navigation_speed" 	value="0.7" />
+		</node>
+
+		<include file="$(find terrasentia_ag_nav)/launch/modules/terrasentia/rosbags/rosbag_manager_tsplus.launch"/>
+
+		<node pkg="mhe_estimator" type="mhe_node.py" name="mhe_node" required="true" output="screen"/>
+
+		<!-- Launch ZED2 camera -->
+		<include file="$(find zed_wrapper)/launch/zed2.launch">
+			<arg name="cam_pos_x"	value="0.17" /> 
+			<arg name="cam_pos_y"	value="0.0" />
+			<arg name="cam_pos_z"	value="0.24" />
+		</include>
+
+		<!-- Traversability MPPI -->
+		<node pkg="bev_navigation" type="traversability_mppi_node.py" name="traversability_mppi" output="screen">
+			<param name="reference_topic" 	type="string"	value="path2" />
+			<param name="cmd_topic" 		type="string"	value="cmd_vel" />
+			<param name="mu_topic" 			type="string"	value="bev_traversability_mu" />
+			<param name="nu_topic" 			type="string"	value="bev_traversability_nu" />
+			<param name="config_file" 		type="string"	value="temporal_model.yaml" />
+			<param name="invert_ang_vel" 	value="true" />
+		</node>
+	</group>
+</launch>

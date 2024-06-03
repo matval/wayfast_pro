@@ -1,0 +1,62 @@
+<launch>
+	<group ns="unitree">
+		<!-- Set lateral cameras from the other Jetson devices -->
+		<node pkg="unitree_navigation" type="run_lateral_cams.sh" name="run_lateral_cams" output="screen"/>
+
+		<!-- Launch Unitree Go1 odom -->
+        <node pkg="unitree_navigation" type="imu_odom" name="unitree_odometry" output="screen" required="true"/>
+    	<!-- <node pkg="unitree_legged_real" type="ros_udp" name="node_ros_udp" output="screen" args="highlevel"/> -->
+
+        <!-- Launch ZED2i camera -->
+        <include file="$(find zed_wrapper)/launch/zed2i.launch">
+			<arg name="cam_pos_x"	value="0.205" />
+			<arg name="cam_pos_y"	value="0.0" />
+			<arg name="cam_pos_z"	value="0.150" />
+		</include>
+
+        <!-- Launch GPS -->
+        <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gps_node" output="screen" required="true">
+            <param name="port" value="/dev/ttyACM0"/>
+            <param name="baud" value="115200" />
+            <!-- <param name="frame_id" value="$(arg frame_id)" />
+            <param name="use_GNSS_time" value="$(arg use_GNSS_time)" />
+            <param name="time_ref_source" value="$(arg time_ref_source)" />
+            <param name="useRMC" value="$(arg useRMC)" /> -->
+        </node>
+
+		<!-- Launch MHE state estimation -->
+        <node pkg="unitree_navigation" type="mhe_vio_node.py" name="mhe_node" required="true" output="screen"/>
+
+		<!-- Launch reference generator -->
+		<node pkg="unitree_navigation" type="point_navigation.py" name="point_navigation_node" required="true" output="screen">
+			<param name="mhe_topic" 		type="string"	value="mhe_output" />
+			<param name="auto_mode_topic" 	type="string"	value="enable_auto_mode" />
+			<param name="waypoints_path" 	type="string"	value="$(find bev_navigation)/waypoints/south_quad.csv" />
+			<param name="min_acc"			value="15.0" />
+			<param name="max_error"			value="0.5" />
+			<param name="navigation_speed"	value="0.7" />
+		</node>
+
+		<!-- Launch MPPI controller-->
+		<node pkg="bev_navigation" type="traversability_mppi_node.py" name="traversability_mppi_node" respawn="true" output="screen">
+			<param name="mu_topic" 			type="string"	value="bev_traversability_mu" />
+			<param name="nu_topic" 			type="string"	value="bev_traversability_nu" />
+			<param name="cmd_topic" 		type="string"	value="cmd_vel" />
+			<param name="reference_topic" 	type="string"	value="path2" />
+			<param name="config_file" 		type="string"	value="temporal_model.yaml" />
+		</node>
+
+		<!-- Traversability specific-->
+		<!-- <node pkg="bev_navigation" type="bev_traversability_node.py" name="bev_traversability" output="screen">
+			<param name="image_topic" 	type="string"	value="zed2i/zed_node/left/image_rect_color/compressed" />
+			<param name="camera_topic" 	type="string"	value="zed2i/zed_node/left/camera_info" />
+			<param name="depth_topic" 	type="string"	value="zed2i/zed_node/depth/depth_registered" />
+			<param name="odom_topic" 	type="string"	value="zed2i/zed_node/odom" />
+			<param name="config_file" 	type="string"	value="temporal_model.yaml" />
+			<param name="model_path" 	type="string"	value="$(find bev_navigation)/../checkpoints/best_temporal2.ckpt" />
+			<param name="cam_pos_x"		value="0.205" />
+			<param name="cam_pos_y"		value="0.06" />
+			<param name="cam_pos_z"		value="0.150" />
+		</node> -->
+	</group>
+</launch>
